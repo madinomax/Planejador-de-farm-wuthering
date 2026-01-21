@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WuWa Farm Planner</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" rel="stylesheet">
+    <style>
+        /* Fonts */
+        @font-face {
+            font-family: 'AlibabaSans-Regular';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/AlibabaSans-Regular.otf');
+        }
+        @font-face {
+            font-family: 'AlibabaSans-Medium';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/AlibabaSans-Medium.otf');
+        }
+        @font-face {
+            font-family: 'AlibabaSans-Bold';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/Alibaba-PuHuiTi-Bold.otf');
+        }
+
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'AlibabaSans-Regular', sans-serif;
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            width: 1920px;
+            margin: 0 auto;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* Utilities */
+        .text-accent { color: #8CC152; }
+        .text-secondary { color: #CCCCCC; }
+        .bg-card { background-color: #2A2A2A; }
+        .bg-accent { background-color: #8CC152; }
+        .bg-primary { background-color: #5B84F0; }
+        
+        .container {
+            width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-family: 'AlibabaSans-Medium', sans-serif;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            border: none;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary {
+            background-color: #5B84F0;
+            color: white;
+        }
+        
+        .btn-outline {
+            border: 1px solid #8CC152;
+            color: #8CC152;
+            background: transparent;
+        }
+
+        /* Header */
+        header {
+            background-color: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'AlibabaSans-Bold', sans-serif;
+            font-size: 24px;
+            color: #8CC152;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            font-size: 16px;
+            color: #CCCCCC;
+            transition: color 0.2s;
+            font-family: 'AlibabaSans-Medium', sans-serif;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #8CC152;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(26,26,26,1) 0%, rgba(32,32,32,1) 100%);
+        }
+
+        .hero h1 {
+            font-family: 'AlibabaSans-Bold', sans-serif;
+            font-size: 48px;
+            color: #8CC152;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #CCCCCC;
+        }
+
+        /* Character Selection */
+        .section-title {
+            font-family: 'AlibabaSans-Bold', sans-serif;
+            font-size: 28px;
+            color: #FFFFFF;
+            margin-bottom: 30px;
+            border-left: 4px solid #8CC152;
+            padding-left: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .characters-section {
+            padding: 40px 0;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 24px;
+        }
+
+        .character-card {
+            background-color: #2A2A2A;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-color: #8CC152;
+        }
+
+        .character-card.selected {
+            border-color: #8CC152;
+        }
+        
+        .character-card.selected::after {
+            content: "\EB7A";
+            font-family: remixicon;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8CC152;
+            color: #1A1A1A;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .char-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background-color: #333; /* Placeholder color */
+            position: relative;
+        }
+        
+        .char-img::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, #2A2A2A, transparent);
+        }
+
+        .char-info {
+            padding: 16px;
+            text-align: center;
+        }
+
+        .char-name {
+            font-family: 'AlibabaSans-Medium', sans-serif;
+            font-size: 16px;
+        }
+        
+        .add-char-btn-container {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        /* Materials Section */
+        .materials-section {
+            padding: 40px 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 24px;
+            background: #222;
+            padding: 4px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .tab {
+            padding: 10px 24px;
+            cursor: pointer;
+            color: #999;
+            border-radius: 6px;
+            font-family: 'AlibabaSans-Medium', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background-color: #8CC152;
+            color: #1A1A1A;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: #333;
+            color: #FFF;
+        }
+
+        .materials-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #2A2A2A;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .materials-table th, .materials-table td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .materials-table th {
+            background-color: #222;
+            font-family: 'AlibabaSans-Bold', sans-serif;
+            color: #8CC152;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .materials-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .materials-table tr:hover td {
+            background-color: #333;
+        }
+
+        .material-icon {
+            width: 32px;
+            height: 32px;
+            background: #444;
+            border-radius: 4px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 12px;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+            position: relative;
+        }
+        
+        .progress-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: #8CC152;
+            border-radius: 3px;
+        }
+
+        /* Waveplate Calculator */
+        .calculator-section {
+            padding: 60px 0;
+            background: linear-gradient(90deg, #1A1A1A 0%, #202020 50%, #1A1A1A 100%);
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .calc-card {
+            background-color: #2A2A2A;
+            border-radius: 8px;
+            padding: 32px;
+            border: 1px solid #333;
+        }
+
+        .calc-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        .waveplate-icon {
+            font-size: 48px;
+            color: #5B84F0;
+            margin-right: 16px;
+        }
+        
+        .current-wp {
+            font-size: 48px;
+            font-family: 'AlibabaSans-Bold', sans-serif;
+            color: #FFFFFF;
+        }
+        
+        .wp-label {
+            font-size: 14px;
+            color: #CCCCCC;
+            text-transform: uppercase;
+        }
+
+        .calc-input-group {
+            margin-bottom: 20px;
+        }
+
+        .calc-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #CCCCCC;
+        }
+
+        .calc-input {
+            width: 100%;
+            padding: 12px;
+            background: #1A1A1A;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: white;
+            font-family: 'AlibabaSans-Regular', sans-serif;
+        }
+        
+        .summary-list {
+            list-style: none;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #111;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 60px;
+            border-top: 1px solid #222;
+        }
+
+        footer p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .footer-logo {
+            font-family: 'AlibabaSans-Bold', sans-serif;
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .tag {
+            background: rgba(140, 193, 82, 0.1);
+            color: #8CC152;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="ri-radar-line"></i>
+                WuWa Farm Planner
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="active">Planner</a>
+                <a href="#">Characters</a>
+                <a href="#">Materials</a>
+                <a href="#">Calendar</a>
+                <a href="#">Progress</a>
+            </nav>
+            <button class="btn btn-outline">Login</button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="container">
+            <h1>Farm Planner</h1>
+            <p>Planeje seu farm diário e otimize seus Waveplates com eficiência máxima.</p>
+        </div>
+    </section>
+
+    <!-- CHARACTER SELECTION -->
+    <section class="container characters-section">
+        <div class="section-title">
+            <span>Personagens Ativos</span>
+            <span style="font-size: 14px; font-weight: normal; color: #888;">6/6 Slots</span>
+        </div>
+        <div class="character-grid">
+            <!-- Char 1 -->
+            <div class="character-card selected">
+                <img src="https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/469f6492-9380-4966-9e65-27a0a6515206/width=450/469f6492-9380-4966-9e65-27a0a6515206.jpeg" alt="Changli" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">Changli <span class="tag">Lv. 90</span></div>
+                </div>
+            </div>
+            <!-- Char 2 -->
+            <div class="character-card">
+                <img src="https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/d7eb74a6-7917-48de-8239-0118eb3d4493/width=450/d7eb74a6-7917-48de-8239-0118eb3d4493.jpeg" alt="Carlotta" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">Carlotta</div>
+                </div>
+            </div>
+            <!-- Char 3 -->
+            <div class="character-card selected">
+                <img src="https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/ce6d305f-e630-4e3f-9cf0-df08e9863864/width=450/ce6d305f-e630-4e3f-9cf0-df08e9863864.jpeg" alt="Shorekeeper" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">Shorekeeper <span class="tag">Lv. 80</span></div>
+                </div>
+            </div>
+            <!-- Char 4 -->
+            <div class="character-card">
+                <img src="https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/da5a3d70-07e0-47b2-bd7e-07e435941a31/width=450/da5a3d70-07e0-47b2-bd7e-07e435941a31.jpeg" alt="Camellya" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">Camellya</div>
+                </div>
+            </div>
+            <!-- Char 5 -->
+            <div class="character-card">
+                <img src="https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/d2994e41-6101-447a-8531-18e5f8f533a1/width=450/d2994e41-6101-447a-8531-18e5f8f533a1.jpeg" alt="Jiyan" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">Jiyan</div>
+                </div>
+            </div>
+            <!-- Char 6 -->
+            <div class="character-card selected">
+                <img src="https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/c5357989-d5a2-4a00-ad54-8e1f57917178/width=450/c5357989-d5a2-4a00-ad54-8e1f57917178.jpeg" alt="Yinlin" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">Yinlin <span class="tag">Lv. 70</span></div>
+                </div>
+            </div>
+            
+            <div class="add-char-btn-container">
+                <button class="btn btn-primary">Adicionar Personagem <i class="ri-add-line" style="margin-left: 8px;"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MATERIALS SECTION -->
+    <section class="container materials-section">
+        <div class="section-title">Planejamento de Materiais</div>
+        
+        <div class="tabs">
+            <div class="tab active">Boss Materials</div>
+            <div class="tab">Forgery</div>
+            <div class="tab">Weekly Boss</div>
+            <div class="tab">Specialties</div>
+            <div class="tab">Echo Materials</div>
+        </div>
+
+        <table class="materials-table">
+            <thead>
+                <tr>
+                    <th width="30%">Material</th>
+                    <th width="20%">Progresso</th>
+                    <th width="15%">Qtd. Atual / Nec.</th>
+                    <th width="20%">Custo Estimado</th>
+                    <th width="15%">Dias para Completar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://i.ibb.co/3sZ8X9k/placeholder-material-1.png" style="background:#555; width:32px; height:32px; border-radius:4px; margin-right:12px;" alt="">
+                            <span>Rage Tacet Core (Inferno Rider)</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-size: 14px; color: #CCC;">45%</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 45%;"></div></div>
+                    </td>
+                    <td>
+                        <span class="text-accent">20</span> <span class="text-secondary">/ 46</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i class="ri-flashlight-fill" style="color: #5B84F0;"></i> 1,560
+                        </div>
+                    </td>
+                    <td>
+                        <span class="tag" style="background: rgba(91, 132, 240, 0.1); color: #5B84F0;">6.5 Dias</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://i.ibb.co/3sZ8X9k/placeholder-material-1.png" style="background:#555; width:32px; height:32px; border-radius:4px; margin-right:12px;" alt="">
+                            <span>Thundering Tacet Core (Mephis)</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-size: 14px; color: #CCC;">12%</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 12%;"></div></div>
+                    </td>
+                    <td>
+                        <span class="text-accent">5</span> <span class="text-secondary">/ 46</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i class="ri-flashlight-fill" style="color: #5B84F0;"></i> 2,460
+                        </div>
+                    </td>
+                    <td>
+                        <span class="tag" style="background: rgba(91, 132, 240, 0.1); color: #5B84F0;">10.2 Dias</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://i.ibb.co/3sZ8X9k/placeholder-material-1.png" style="background:#555; width:32px; height:32px; border-radius:4px; margin-right:12px;" alt="">
+                            <span>Elegy Tacet Core (Mourning Aix)</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-size: 14px; color: #CCC;">88%</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 88%;"></div></div>
+                    </td>
+                    <td>
+                        <span class="text-accent">40</span> <span class="text-secondary">/ 46</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i class="ri-flashlight-fill" style="color: #5B84F0;"></i> 360
+                        </div>
+                    </td>
+                    <td>
+                        <span class="tag" style="background: #2a3a2a; color: #8CC152;">1.5 Dias</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://i.ibb.co/3sZ8X9k/placeholder-material-1.png" style="background:#555; width:32px; height:32px; border-radius:4px; margin-right:12px;" alt="">
+                            <span>Sound-Keeping Tacet Core</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-size: 14px; color: #CCC;">0%</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%;"></div></div>
+                    </td>
+                    <td>
+                        <span class="text-accent">0</span> <span class="text-secondary">/ 46</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i class="ri-flashlight-fill" style="color: #5B84F0;"></i> 2,760
+                        </div>
+                    </td>
+                    <td>
+                        <span class="tag" style="background: rgba(255, 100, 100, 0.1); color: #ff6b6b;">11.5 Dias</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- CALCULATOR SECTION -->
+    <section class="calculator-section">
+        <div class="container">
+            <div class="section-title">Calculadora de Waveplates</div>
+            
+            <div class="calc-grid">
+                <!-- Status -->
+                <div class="calc-card">
+                    <div class="calc-display">
+                        <div style="display: flex; align-items: center;">
+                            <i class="ri-flashlight-fill waveplate-icon"></i>
+                            <div>
+                                <div class="wp-label">Waveplates Disponíveis</div>
+                                <div class="current-wp">180 <span style="font-size: 24px; color: #888; font-weight: normal;">/ 240</span></div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="tag" style="background: #222; color: #8CC152; font-size: 14px;">Regenerando</div>
+                            <div style="font-size: 13px; color: #888; margin-top: 4px;">+1 a cada 6m</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #ccc;">Próximo Full (240)</span>
+                            <span style="color: #fff;">Hoje, 20:45</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: #111; border-radius: 4px;">
+                            <div style="width: 75%; height: 100%; background: #5B84F0; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumo -->
+                <div class="calc-card">
+                    <h3 style="font-family: 'AlibabaSans-Medium'; margin-bottom: 20px; color: #fff;">Recomendação de Farm Hoje</h3>
+                    <ul class="summary-list">
+                        <li class="summary-item">
+                            <span style="display: flex; align-items: center; gap: 8px;">
+                                <i class="ri-sword-line text-accent"></i> 3x Inferno Rider Boss
+                            </span>
+                            <span class="text-secondary">-180 WP</span>
+                        </li>
+                        <li class="summary-item">
+                            <span style="display: flex; align-items: center; gap: 8px;">
+                                <i class="ri-book-open-line" style="color: #5B84F0;"></i> 2x Forgery Challenge
+                            </span>
+                            <span class="text-secondary">-80 WP</span>
+                        </li>
+                        <li class="summary-item" style="border:none; padding-top: 20px; margin-top: 10px; border-top: 1px dashed #444;">
+                            <span style="font-weight: bold;">Total Estimado</span>
+                            <span class="text-accent" style="font-weight: bold;">260 WP</span>
+                        </li>
+                    </ul>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 16px;">Sincronizar com Jogo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-logo">WuWa Farm Planner</div>
+            <p>Este site não é afiliado à Kuro Games. Todos os direitos de Wuthering Waves pertencem aos seus respectivos donos.</p>
+            <p style="margin-top: 10px; font-size: 12px; color: #444;">Desenvolvido pela Comunidade para a Comunidade.</p>
+            
+            <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
+                <a href="#" style="color: #666; font-size: 20px;"><i class="ri-github-fill"></i></a>
+                <a href="#" style="color: #666; font-size: 20px;"><i class="ri-twitter-x-fill"></i></a>
+                <a href="#" style="color: #666; font-size: 20px;"><i class="ri-discord-fill"></i></a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
